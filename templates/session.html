@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Flask_Chat_App</title>
+</head>
+
+<body>
+
+    <h3 style='color: #ccc;font-size: 30px;'>No message yet..</h3>
+    <div class="message_holder"></div>
+
+    <form action="" method="POST">
+        <input type="text" class="username" placeholder="User Name" />
+        <input type="text" class="message" placeholder="Messages" />
+        <input type="submit" />
+    </form>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
+    <script src="https://peterolson.github.io/BigInteger.js/BigInteger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js"></script>
+    <script src="static/crypto.js"></script>
+    <script>
+        const socket = io.connect('https://' + document.domain + ':' + location.port);
+        let user = new User(1, 1);
+        let id;
+        socket.on('connect', function() {
+            id = socket.id;
+            socket.emit('new user', {
+                p: Math.floor(Math.random() * 100000),
+                q: randPrime(0, 10000)
+            });
+        });
+        socket.on('init', function(json) {
+            console.log('init');
+            user = new User(json.p, json.q);
+            socket.emit('swap', {
+                a: user.a
+            });
+        });
+        socket.on('use prev', function(json) {
+            user.usePrev();
+            socket.emit('big swap', {
+                a: user.a,
+                new_id: json.id
+            });
+        });
+        socket.on('new o', function(json) {
+            console.log('new o: ', json.a);
+            user.calcKey(json.a);
+            console.log('key: ', user.key, 'p, q:', user.p, user.q);
+        });
+        $('form').on('submit', function(e) {
+            e.preventDefault();
+            let user_name = $('input.username').val();
+            let user_input = $('input.message').val();
+            socket.emit('msg', {
+                user_name: user.encrypt(user_name),
+                message: user.encrypt(user_input)
+            });
+            $('input.message').val('').focus();
+        });
+        socket.on('new msg', function(json) {
+            console.log('incoming');
+            console.log(json);
+            const uname = user.decrypt(json.user_name);
+            const dmsg = user.decrypt(json.message);
+            if (typeof json.user_name !== 'undefined') {
+                $('h3').remove();
+                $('div.message_holder').append('<div><b style="color: #000">' + uname + '</b> ' + dmsg + '</div>');
+            }
+        });
+        socket.on('leave', function(json) {
+            const uname = user.decrypt(json.user_name);
+            if (typeof json.user_name !== 'undefined') {
+                $('h3').remove();
+                $('div.message_holder').append('<div><b style="color: #000">' + uname + ' disconnected</b></div>');
+            }
+        })
+    </script>
+
+</body>
+
+</html>
