@@ -1,9 +1,6 @@
 from flask import Flask, render_template
 import eventlet
 import socketio
-from apscheduler.schedulers.background import BackgroundScheduler
-from time import time
-from json import loads
 
 users = {}
 keys = {}
