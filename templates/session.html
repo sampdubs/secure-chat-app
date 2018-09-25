@@ -24,7 +24,7 @@
     <script src="static/crypto.js"></script>
     <script>
         const socket = io.connect('https://' + document.domain + ':' + location.port);
-        let user;
+        let user = new User(1, 1);
         let id;
         socket.on('connect', function() {
             id = socket.id;
@@ -40,10 +40,17 @@
                 a: user.a
             });
         });
+        socket.on('use prev', function(json) {
+            user.usePrev();
+            socket.emit('big swap', {
+                a: user.a,
+                new_id: json.id
+            });
+        });
         socket.on('new o', function(json) {
-            console.log('new o');
+            console.log('new o: ', json.a);
             user.calcKey(json.a);
-            console.log('key: ', user.key);
+            console.log('key: ', user.key, 'p, q:', user.p, user.q);
         });
         $('form').on('submit', function(e) {
             e.preventDefault();

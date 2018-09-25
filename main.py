@@ -14,23 +14,29 @@ sio = socketio.Server()
 
 @app.route('/')
 def sessions():
-    if len(users) < 2:
-        return render_template('session.html')
-    return "sorry only 2 users allowed for now..."
+    return render_template('session.html')
 
 @sio.on('new user')
 def new_user(sid, json, methods=['GET', 'POST']):
     print('new user. ID: ' + sid)
     users[sid] = True
-    keys['p'] = json['p']
-    keys['q'] = json['q']
-    print(users)
-    sio.emit('init', json);
+    if len(users) == 2:
+        sio.emit('init', json)
+        keys['p'] = json['p']
+        keys['q'] = json['q']
+    elif len(users) > 2:
+        sio.emit('use prev', {**json, 'id': sid}, skip_sid=sid)
+        sio.emit('init', keys, room=sid)
     
 @sio.on('swap')
 def swap(sid, json, methods=['GET', 'POST']):
-    print('Swap. O: ' + str(json['a']))
-    sio.emit('new o', json, skip_sid=sid);
+    print('Swap. O: ' + str(json['a'])) 
+    sio.emit('new o', json, skip_sid=sid)
+
+@sio.on('big swap')
+def big_swap(sid, json, methods=['GET', 'POST']):
+    print('Big swap. O: ' + str(json['a']))
+    sio.emit('new o', json, room=json['new_id'])
 
 @sio.on('msg')
 def handle_my_custom_event(sid, json, methods=['GET', 'POST']):
@@ -41,9 +47,10 @@ def handle_my_custom_event(sid, json, methods=['GET', 'POST']):
 @sio.on('disconnect')
 def disconnect(sid):
     print('someone disconnected: ' + sid)
-    users.pop(sid)
-    sio.emit('leave', {'user_name': user_names[sid]})
-    sio.emit('init', keys);
+    if sid in user_names:
+        users.pop(sid)
+        sio.emit('leave', {'user_name': user_names[sid]})
+    print(users)
     
 
 if __name__ == '__main__':

@@ -35,7 +35,12 @@ class User {
         this.x = bigInt.randBetween(0, 100000);
         this.a = this.p.pow(this.x).mod(this.q).toJSNumber();
     }
-
+    
+    usePrev() {
+        this.x = bigInt(this.key);
+        this.a = this.p.pow(this.x).mod(this.q).toJSNumber();
+    }
+    
     calcKey(o) {
         this.o = bigInt(o);
         this.key = this.o.pow(this.x).mod(this.q).toJSNumber();
