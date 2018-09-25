@@ -2,4 +2,4 @@
 
 A secure (cryptographicaly protected) chat serverice
 
-curently only for 2 users
+curently only for UNLIMITED users
