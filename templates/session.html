@@ -25,9 +25,7 @@
     <script>
         const socket = io.connect('https://' + document.domain + ':' + location.port);
         let user = new User(1, 1);
-        let id;
         socket.on('connect', function() {
-            id = socket.id;
             socket.emit('new user', {
                 p: Math.floor(Math.random() * 100000),
                 q: randPrime(0, 10000)
@@ -48,9 +46,11 @@
             });
         });
         socket.on('new o', function(json) {
-            console.log('new o: ', json.a);
-            user.calcKey(json.a);
-            console.log('key: ', user.key, 'p, q:', user.p, user.q);
+            if (json.a != user.o) {
+                console.log('new o: ', json.a);
+                user.calcKey(json.a);
+                console.log('key: ', user.key, 'p, q:', user.p, user.q);
+            }
         });
         $('form').on('submit', function(e) {
             e.preventDefault();
@@ -76,9 +76,11 @@
             const uname = user.decrypt(json.user_name);
             if (typeof json.user_name !== 'undefined') {
                 $('h3').remove();
-                $('div.message_holder').append('<div><b style="color: #000">' + uname + ' disconnected</b></div>');
+                if (uname.length >= 1) {
+                    $('div.message_holder').append('<div><b style="color: #000">' + uname + ' disconnected</b></div>');
+                }
             }
-        })
+        });
     </script>
 
 </body>
