@@ -11,7 +11,7 @@
     <div class="message_holder"></div>
 
     <form action="" method="POST">
-        <input type="text" class="username" placeholder="User Name" />
+        <input type="text" class="username" placeholder="User Name" readonly />
         <input type="text" class="message" placeholder="Messages" />
         <input type="submit" />
     </form>
@@ -25,34 +25,45 @@
     <script>
         const socket = io.connect('https://' + document.domain + ':' + location.port);
         let user = new User(1, 1);
-        socket.on('connect', function() {
+        let myName = '';
+        const usersStatus = {};
+        $(() => {
+            while (!myName) {
+                myName = prompt("what is your name?");
+            }
+            $('input.username').val(myName);
+        });
+        socket.on('connect', () => {
             socket.emit('new user', {
                 p: Math.floor(Math.random() * 100000),
-                q: randPrime(0, 10000)
+                q: randPrime(0, 100000)
             });
         });
-        socket.on('init', function(json) {
+        socket.on('init', json => {
             console.log('init');
             user = new User(json.p, json.q);
             socket.emit('swap', {
                 a: user.a
             });
         });
-        socket.on('use prev', function(json) {
+        socket.on('use prev', json => {
             user.usePrev();
             socket.emit('big swap', {
                 a: user.a,
                 new_id: json.id
             });
         });
-        socket.on('new o', function(json) {
+        socket.on('new o', json => {
             if (json.a != user.o) {
                 console.log('new o: ', json.a);
                 user.calcKey(json.a);
                 console.log('key: ', user.key, 'p, q:', user.p, user.q);
+                socket.emit('join', {
+                    user_name: user.encrypt(myName)
+                });
             }
         });
-        $('form').on('submit', function(e) {
+        $('form').on('submit', e => {
             e.preventDefault();
             let user_name = $('input.username').val();
             let user_input = $('input.message').val();
@@ -62,22 +73,37 @@
             });
             $('input.message').val('').focus();
         });
-        socket.on('new msg', function(json) {
-            console.log('incoming');
-            console.log(json);
-            const uname = user.decrypt(json.user_name);
-            const dmsg = user.decrypt(json.message);
+        socket.on('new msg', json => {
             if (typeof json.user_name !== 'undefined') {
+                console.log('incoming');
+                console.log(json);
+                const uname = user.decrypt(json.user_name);
+                const msg = user.decrypt(json.message);
                 $('h3').remove();
-                $('div.message_holder').append('<div><b style="color: #000">' + uname + '</b> ' + dmsg + '</div>');
+                $('div.message_holder').append('<div><b style="color: #000">' + uname + '</b> ' + msg + '</div>');
             }
         });
-        socket.on('leave', function(json) {
-            const uname = user.decrypt(json.user_name);
+        socket.on('join', json => {
             if (typeof json.user_name !== 'undefined') {
-                $('h3').remove();
-                if (uname.length >= 1) {
-                    $('div.message_holder').append('<div><b style="color: #000">' + uname + ' disconnected</b></div>');
+                const uname = user.decrypt(json.user_name);
+                if (!(uname in usersStatus)) {
+                    $('h3').remove();
+                    if (uname.length >= 1) {
+                        $('div.message_holder').append('<div><b style="color: #000">' + uname + ' connected</b></div>');
+                    }
+                    usersStatus[uname] = true;
+                }
+            }
+        });
+        socket.on('leave', json => {
+            if (typeof json.user_name !== 'undefined') {
+                const uname = user.decrypt(json.user_name);
+                if (uname in usersStatus) {
+                    $('h3').remove();
+                    if (uname.length >= 1) {
+                        $('div.message_holder').append('<div><b style="color: #000">' + uname + ' disconnected</b></div>');
+                    }
+                    delete usersStatus[uname];
                 }
             }
         });

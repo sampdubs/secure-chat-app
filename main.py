@@ -1,6 +1,7 @@
 from flask import Flask, render_template
 import eventlet
 import socketio
+#from ast import literal_eval as array
 
 users = {}
 keys = {}
@@ -35,8 +36,13 @@ def big_swap(sid, json, methods=['GET', 'POST']):
     print('Big swap. O: ' + str(json['a']))
     sio.emit('new o', json, room=json['new_id'])
 
+@sio.on('join')
+def join(sid, json, methods=['GET', 'POST']):
+    user_names[sid] = json['user_name']
+    sio.emit('join', json, skip_sid=sid)
+
 @sio.on('msg')
-def handle_my_custom_event(sid, json, methods=['GET', 'POST']):
+def msg(sid, json, methods=['GET', 'POST']):
     print('received msg: ' + str(json))
     user_names[sid] = json['user_name']
     sio.emit('new msg', json)
@@ -48,9 +54,16 @@ def disconnect(sid):
         users.pop(sid)
         sio.emit('leave', {'user_name': user_names[sid]})
     print(users)
-    
+
+#f = open('/home/ec2-user/environment/aws.cloud.9/static/primes.txt', 'r')
+#primes = f.read()
+#primes = list(array(primes))
+#print(len(primes))
+
+
 
 if __name__ == '__main__':
+    
     app = socketio.Middleware(sio, app)
     print('started server')
     eventlet.wsgi.server(eventlet.listen(('', 8080)), app, log_output=False)
