@@ -1,7 +1,7 @@
 from flask import Flask, render_template
 import eventlet
 import socketio
-#from ast import literal_eval as array
+
 
 users = {}
 keys = {}
@@ -54,13 +54,6 @@ def disconnect(sid):
         users.pop(sid)
         sio.emit('leave', {'user_name': user_names[sid]})
     print(users)
-
-#f = open('/home/ec2-user/environment/aws.cloud.9/static/primes.txt', 'r')
-#primes = f.read()
-#primes = list(array(primes))
-#print(len(primes))
-
-
 
 if __name__ == '__main__':
     
