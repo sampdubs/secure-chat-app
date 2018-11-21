@@ -1,10 +1,47 @@
 from flask import Flask, render_template
-import eventlet
-import socketio
-#from ast import literal_eval as array
+from statistics import mean
+import eventlet, socketio, time, math, random
+timing = 0
+done = 0
+times = {}
+time_array = [[] for _ in range(20)]
+number_of_measurements = [0 for _ in range(20)]
+time_avgs = {}
+
+def startTime(num):
+    global times
+    times[num] = {'t0': time.time()}
+def stopTime(num):
+    global times
+    times[num]['t1'] = time.time()
+    times[num]['time'] = times[num]['t1'] - times[num]['t0']
+    time_array[num].append(times[num]['time'])
+    time_avgs[num] = mean(time_array[num])
+    number_of_measurements[num] += 1
+
+def randPrime(min, n):
+    a = [False, False] + [True for _ in range(n - 1)]
+    for i in range(2, math.floor(math.sqrt(n) + 1)):
+        if a[i]:
+            k = 0
+            j = (i + k) * i
+            while j <= n:
+                a[j] = False
+                k += 1
+                j = (i + k) * i
+    outlist = []
+    for i in range(min, n + 1):
+        if a[i]:
+            outlist.append(i)
+    print('generated')
+    return random.choice(outlist)
+
 
 users = {}
-keys = {}
+keys = {
+    'p': random.randint(0, 1000000),
+    'q': randPrime(0, 1000000)
+}
 user_names = {}
 
 app = Flask(__name__)
@@ -16,19 +53,22 @@ def sessions():
 
 @sio.on('new user')
 def new_user(sid, json, methods=['GET', 'POST']):
-    print('new user. ID: ' + sid)
+    print('new user. SID: ' + sid)
     users[sid] = True
+    global timing
+    if len(users) > 1: 
+        timing = len(users)
+        startTime(timing)
     if len(users) == 2:
-        sio.emit('init', json)
-        keys['p'] = json['p']
-        keys['q'] = json['q']
+        sio.emit('init', keys)
     elif len(users) > 2:
-        sio.emit('use prev', {**json, 'id': sid}, skip_sid=sid)
+        sio.emit('use prev', {**keys, 'id': sid}, skip_sid=sid)
         sio.emit('init', keys, room=sid)
+    
     
 @sio.on('swap')
 def swap(sid, json, methods=['GET', 'POST']):
-    print('Swap. O: ' + str(json['a'])) 
+    print(f"Swap. O: {json['a']}, P: {json['p']}, Q: {json['q']}") 
     sio.emit('new o', json, skip_sid=sid)
 
 @sio.on('big swap')
@@ -40,6 +80,13 @@ def big_swap(sid, json, methods=['GET', 'POST']):
 def join(sid, json, methods=['GET', 'POST']):
     user_names[sid] = json['user_name']
     sio.emit('join', json, skip_sid=sid)
+    global done, timing
+    done += 1
+    if done == timing:
+        stopTime(timing)
+        done = 0
+        timing = 0
+        print(f'Times: {time_avgs}, Measurements: {number_of_measurements[4]}')
 
 @sio.on('msg')
 def msg(sid, json, methods=['GET', 'POST']):
@@ -55,15 +102,8 @@ def disconnect(sid):
         sio.emit('leave', {'user_name': user_names[sid]})
     print(users)
 
-#f = open('/home/ec2-user/environment/aws.cloud.9/static/primes.txt', 'r')
-#primes = f.read()
-#primes = list(array(primes))
-#print(len(primes))
-
-
-
 if __name__ == '__main__':
-    
     app = socketio.Middleware(sio, app)
     print('started server')
-    eventlet.wsgi.server(eventlet.listen(('', 8080)), app, log_output=False)
+    eventlet.wsgi.server(eventlet.listen(('', 8080)), app, log_output=False, debug=True)
+

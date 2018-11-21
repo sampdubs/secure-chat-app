@@ -51,7 +51,7 @@ class User {
 
     }
     
-    decrypt(str){
+    decrypt(str) {
         return CryptoJS.AES.decrypt(str, this.key != undefined ? this.key.toString() : 'key').toString(CryptoJS.enc.Utf8);
     }
 }

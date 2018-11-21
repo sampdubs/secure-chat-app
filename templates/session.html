@@ -11,8 +11,8 @@
     <div class="message_holder"></div>
 
     <form action="" method="POST">
-        <input type="text" class="username" placeholder="User Name" readonly />
-        <input type="text" class="message" placeholder="Messages" />
+        <input type="text" class="username" placeholder="User Name" enctype="multipart/form-data" readonly />
+        <input type="text" class="message" placeholder="Messages" enctype="multipart/form-data" />
         <input type="submit" />
     </form>
 
@@ -21,29 +21,33 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
     <script src="https://peterolson.github.io/BigInteger.js/BigInteger.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-sha256/0.9.0/sha256.js"></script>
     <script src="static/crypto.js"></script>
     <script>
-        const socket = io.connect('https://' + document.domain + ':' + location.port);
+        const socket = io.connect('http://' + document.domain + ':' + location.port);
         let user = new User(1, 1);
         let myName = '';
         const usersStatus = {};
-        $(() => {
+        async function getName() {
             while (!myName) {
-                myName = prompt("what is your name?");
+                myName = prompt('What is your name?');
             }
             $('input.username').val(myName);
-        });
+            
+        }
+        setTimeout(getName, 1)
+        //myName = String(Math.random());
         socket.on('connect', () => {
-            socket.emit('new user', {
-                p: Math.floor(Math.random() * 100000),
-                q: randPrime(0, 100000)
-            });
+            socket.emit('new user', {});
         });
         socket.on('init', json => {
-            console.log('init');
+            //console.log('init');
             user = new User(json.p, json.q);
+            console.log('x: ', user.x.value, 'a: ', user.a);
             socket.emit('swap', {
-                a: user.a
+                a: user.a,
+                p: user.p,
+                q: user.q
             });
         });
         socket.on('use prev', json => {
@@ -57,7 +61,7 @@
             if (json.a != user.o) {
                 console.log('new o: ', json.a);
                 user.calcKey(json.a);
-                console.log('key: ', user.key, 'p, q:', user.p, user.q);
+                console.log('key: ', user.key, 'p, q:', user.p.value, user.q.value);
                 socket.emit('join', {
                     user_name: user.encrypt(myName)
                 });
@@ -80,7 +84,8 @@
                 const uname = user.decrypt(json.user_name);
                 const msg = user.decrypt(json.message);
                 $('h3').remove();
-                $('div.message_holder').append('<div><b style="color: #000">' + uname + '</b> ' + msg + '</div>');
+                $('div.message_holder').append('<div><b style="color: #000">' + uname + '</b> ' + msg +
+                    '</div>');
             }
         });
         socket.on('join', json => {
@@ -89,7 +94,8 @@
                 if (!(uname in usersStatus)) {
                     $('h3').remove();
                     if (uname.length >= 1) {
-                        $('div.message_holder').append('<div><b style="color: #000">' + uname + ' connected</b></div>');
+                        $('div.message_holder').append('<div><b style="color: #000">' + uname +
+                            ' connected</b></div>');
                     }
                     usersStatus[uname] = true;
                 }
@@ -101,7 +107,8 @@
                 if (uname in usersStatus) {
                     $('h3').remove();
                     if (uname.length >= 1) {
-                        $('div.message_holder').append('<div><b style="color: #000">' + uname + ' disconnected</b></div>');
+                        $('div.message_holder').append('<div><b style="color: #000">' + uname +
+                            ' disconnected</b></div>');
                     }
                     delete usersStatus[uname];
                 }
