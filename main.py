@@ -1,4 +1,5 @@
 from flask import Flask, render_template
+<<<<<<< HEAD
 from statistics import mean
 import eventlet, socketio, time, math, random
 timing = 0
@@ -35,6 +36,10 @@ def randPrime(min, n):
             outlist.append(i)
     print('generated')
     return random.choice(outlist)
+=======
+import eventlet
+import socketio
+>>>>>>> 0ca6b1112f6491f6d4e982ff05ede249314b89bf
 
 
 users = {}
@@ -105,5 +110,9 @@ def disconnect(sid):
 if __name__ == '__main__':
     app = socketio.Middleware(sio, app)
     print('started server')
+<<<<<<< HEAD
     eventlet.wsgi.server(eventlet.listen(('', 8080)), app, log_output=False, debug=True)
 
+=======
+    eventlet.wsgi.server(eventlet.listen(('', 8080)), app, log_output=False)
+>>>>>>> 0ca6b1112f6491f6d4e982ff05ede249314b89bf
