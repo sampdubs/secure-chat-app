@@ -68,9 +68,7 @@ def new_user(sid, json, methods=['GET', 'POST']):
 
 @sio.on('my hash')
 def my_hash(sid, json, methods=['GET', 'POST']):
-    print(f'Hash received: {json["myHash"]}')
     hashed_user_names[sid] = json['myHash']
-    print(f'Hash list: {hashed_user_names}')
 
 
 @sio.on('swap')
