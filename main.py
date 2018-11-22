@@ -39,8 +39,8 @@ def randPrime(min, n):
 
 users = {}
 keys = {
-    'p': random.randint(0, 1000000),
-    'q': randPrime(0, 1000000)
+    'p': random.randint(0, 100000),
+    'q': randPrime(0, 100000)
 }
 user_names = {}
 hashed_user_names = {'': 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'}
