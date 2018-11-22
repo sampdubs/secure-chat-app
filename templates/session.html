@@ -36,8 +36,6 @@
             $('input.username').val(myName);
             
         }
-        //setTimeout(getName, 1)
-        //myName = String(Math.random());
         socket.on('connect', () => {
             socket.emit('new user', {});
         });
@@ -50,7 +48,6 @@
             });
         });
         socket.on('init', json => {
-            //console.log('init');
             user = new User(json.p, json.q);
             console.log('x: ', user.x.value, 'a: ', user.a);
             socket.emit('swap', {

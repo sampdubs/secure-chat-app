@@ -61,7 +61,7 @@ def new_user(sid, json, methods=['GET', 'POST']):
         timing = len(users)
         startTime(timing)
     if len(users) == 2:
-        sio.emit('init', keys,)
+        sio.emit('init', keys)
     elif len(users) > 2:
         sio.emit('use prev', {**keys, 'id': sid}, skip_sid=sid)
         sio.emit('init', keys, room=sid)
