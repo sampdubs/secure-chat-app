@@ -27,18 +27,27 @@
         const socket = io.connect('http://' + document.domain + ':' + location.port);
         let user = new User(1, 1);
         let myName = '';
+        let hashList = [];
         const usersStatus = {};
-        async function getName() {
-            while (!myName) {
+        function getName() {
+            while (!myName || hashList.includes(sha256(myName))) {
                 myName = prompt('What is your name?');
             }
             $('input.username').val(myName);
             
         }
-        setTimeout(getName, 1)
+        //setTimeout(getName, 1)
         //myName = String(Math.random());
         socket.on('connect', () => {
             socket.emit('new user', {});
+        });
+        socket.on('hash', json => {
+            hashList = json.hashes;
+            console.log(hashList);
+            getName();
+            socket.emit('my hash', {
+                myHash: sha256(myName)
+            });
         });
         socket.on('init', json => {
             //console.log('init');
@@ -47,7 +56,8 @@
             socket.emit('swap', {
                 a: user.a,
                 p: user.p,
-                q: user.q
+                q: user.q,
+                myHash: sha256(myName)
             });
         });
         socket.on('use prev', json => {

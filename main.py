@@ -43,7 +43,7 @@ keys = {
     'q': randPrime(0, 1000000)
 }
 user_names = {}
-
+hashed_user_names = {'': 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'}
 app = Flask(__name__)
 sio = socketio.Server()
 
@@ -55,20 +55,28 @@ def sessions():
 def new_user(sid, json, methods=['GET', 'POST']):
     print('new user. SID: ' + sid)
     users[sid] = True
+    sio.emit('hash', {'hashes': list(hashed_user_names.values())}, room=sid)
     global timing
     if len(users) > 1: 
         timing = len(users)
         startTime(timing)
     if len(users) == 2:
-        sio.emit('init', keys)
+        sio.emit('init', keys,)
     elif len(users) > 2:
         sio.emit('use prev', {**keys, 'id': sid}, skip_sid=sid)
         sio.emit('init', keys, room=sid)
-    
-    
+
+@sio.on('my hash')
+def my_hash(sid, json, methods=['GET', 'POST']):
+    print(f'Hash received: {json["myHash"]}')
+    hashed_user_names[sid] = json['myHash']
+    print(f'Hash list: {hashed_user_names}')
+
+
 @sio.on('swap')
 def swap(sid, json, methods=['GET', 'POST']):
-    print(f"Swap. O: {json['a']}, P: {json['p']}, Q: {json['q']}") 
+    print(f"Swap. O: {json['a']}, P: {json['p']}, Q: {json['q']}")
+    hashed_user_names[sid] = json['myHash']
     sio.emit('new o', json, skip_sid=sid)
 
 @sio.on('big swap')
@@ -100,6 +108,8 @@ def disconnect(sid):
     if sid in user_names:
         users.pop(sid)
         sio.emit('leave', {'user_name': user_names[sid]})
+    if sid in hashed_user_names:
+        hashed_user_names.pop(sid)
     print(users)
 
 if __name__ == '__main__':
