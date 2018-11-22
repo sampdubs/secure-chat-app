@@ -40,7 +40,7 @@
             socket.emit('new user', {});
         });
         socket.on('hash', json => {
-            hashList = json.hashes;m
+            hashList = json.hashes;
             getName();
             socket.emit('my hash', {
                 myHash: sha256(myName)
