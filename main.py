@@ -33,7 +33,6 @@ def randPrime(min, n):
     for i in range(min, n + 1):
         if a[i]:
             outlist.append(i)
-    print('generated')
     return random.choice(outlist)
 
 
@@ -91,7 +90,7 @@ def join(sid, json, methods=['GET', 'POST']):
         stopTime(timing)
         done = 0
         timing = 0
-        print(f'Times: {time_avgs}, Measurements: {number_of_measurements[4]}')
+        print(f'Times: {time_avgs}, Measurements: {number_of_measurements[2]}')
 
 @sio.on('msg')
 def msg(sid, json, methods=['GET', 'POST']):
