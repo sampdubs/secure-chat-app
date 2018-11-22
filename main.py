@@ -74,7 +74,6 @@ def my_hash(sid, json, methods=['GET', 'POST']):
 @sio.on('swap')
 def swap(sid, json, methods=['GET', 'POST']):
     print(f"Swap. O: {json['a']}, P: {json['p']}, Q: {json['q']}")
-    hashed_user_names[sid] = json['myHash']
     sio.emit('new o', json, skip_sid=sid)
 
 @sio.on('big swap')
