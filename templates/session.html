@@ -66,7 +66,7 @@
         });
         // when the server send back the init message
         socket.on('init', json => {
-            console.log('init');
+            // console.log('init');
             // use the public keys to initialize the User instance
             user = new User(json.p, json.q);
             console.log('x: ', user.x.value, 'a: ', user.a);
@@ -126,8 +126,9 @@
             // if it still says that there are no messages yet, take that away
             $('h3').remove();
             // show the message and the sender
-            $('div.message_holder').append('<div><b style="color: #000">' + uname + '</b> ' + msg +
-                '</div>');
+            $(`<div><b style="color: #000"> ${json.user_name} </b> ${json.message} <button> Click to decode</button></div>`).appendTo('div.message_holder').click(function() {
+                $(this).html(`<div><b style="color: #000"> ${uname} </b> ${msg}</div>`)
+            });
         });
         // when another user connect and sends their encrypted username
         socket.on('join', json => {
