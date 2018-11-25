@@ -6,15 +6,17 @@
 </head>
 
 <body>
-
-    <h3 style='color: #ccc;font-size: 30px;'>No message yet..</h3>
-    <div class="message_holder"></div>
-
+    <br><br>
     <form action="" method="POST">
-        <input type="text" class="username" placeholder="User Name" enctype="multipart/form-data" readonly />
-        <input type="text" class="message" placeholder="Messages" enctype="multipart/form-data" />
+        <input style="font-size:1.5em" type="text" class="username" placeholder="User Name" enctype="multipart/form-data" readonly />
+        <input style="font-size:1.5em" type="text" class="message" placeholder="Messages" enctype="multipart/form-data" />
         <input type="submit" />
     </form>
+    <br>
+    <h2 style="font-size:2em;"><b>Your Messages (click on a message to decode):</b></h5>
+
+    <h3 style='color: #ccc;font-size: 2.5em;'>No messages yet..</h3>
+    <div class="message_holder"></div>
 
     <!-- jQuery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
@@ -126,8 +128,8 @@
             // if it still says that there are no messages yet, take that away
             $('h3').remove();
             // show the message and the sender
-            $(`<div><b style="color: #000"> ${json.user_name} </b> ${json.message} <button> Click to decode</button></div>`).appendTo('div.message_holder').click(function() {
-                $(this).html(`<div><b style="color: #000"> ${uname} </b> ${msg}</div>`)
+            $(`<div style="cursor:default;font-size:1.5em;"><b style="color: #000"> ${json.user_name} </b> ${json.message}</div>`).prependTo('div.message_holder').click(function() {
+                $(this).html(`<div style="cursor:default;font-size:1.5em;"><b> ${uname} </b> ${msg}<div style="font-size:21px;">&emsp;&emsp;(<b>${json.user_name}</b> ${json.message})</div></div>`)
             });
         });
         // when another user connect and sends their encrypted username
@@ -141,7 +143,7 @@
                 // if the username was correctly decryptedz
                 if (uname.length > 0) {
                     // show that that user has connected where the messages usualy are
-                    $('div.message_holder').append('<div><b style="color: #000">' + uname +
+                    $('div.message_holder').prepend('<div><b style="color: #000">' + uname +
                         ' connected</b></div>');
                 }
                 // remember that that user is connected
@@ -159,7 +161,7 @@
                 // if the username was correctly decrypted
                 if (uname.length >= 1) {
                     // show that that user has disconnected where the messages usually are
-                    $('div.message_holder').append('<div><b style="color: #000">' + uname +
+                    $('div.message_holder').prepend('<div><b style="color: #000">' + uname +
                         ' disconnected</b></div>');
                 }
                 // take that user out of the users who are still connected
