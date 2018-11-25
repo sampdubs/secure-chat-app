@@ -21,7 +21,7 @@ class User {
     usePrev() {
         // reset the x to be the previous key
         this.x = bigInt(this.key);
-        // recalculate the a value (storing as a regualr number)
+        // recalculate the a value (storing as a regular number)
         this.a = this.p.pow(this.x).mod(this.q).toJSNumber();
     }
 
