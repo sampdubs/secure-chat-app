@@ -95,13 +95,13 @@ def my_hash(sid, json, methods=['GET', 'POST']):
 # facilitates one user sending out their a value to everyone
 @sio.on('swap')
 def swap(sid, json, methods=['GET', 'POST']):
-    print(f"Swap. O: {json['a']}, P: {json['p']}, Q: {json['q']}")
+    print(f"Swap. A: {json['a']}, P: {json['p']}, Q: {json['q']}")
     sio.emit('new o', json, skip_sid=sid)
 
 # facilitates multiple users sending out their a value to the newest user
 @sio.on('big swap')
 def big_swap(sid, json, methods=['GET', 'POST']):
-    print('Big swap. O: ' + str(json['a']))
+    print('Big swap. A: ' + str(json['a']))
     sio.emit('new o', json, room=json['new_id'])
 
 # once a user has arrived at the key
@@ -127,7 +127,7 @@ def join(sid, json, methods=['GET', 'POST']):
 # facilitates sending out encrypted messages from one user to all users
 @sio.on('msg')
 def msg(sid, json, methods=['GET', 'POST']):
-    print('received msg: ' + str(json))
+    print(f"When your message was sent, your username was sent as \n {json['user_name']} \nAnd your message was sent as \n {json['message']} \n")
     user_names[sid] = json['user_name']
     sio.emit('new msg', json)
 

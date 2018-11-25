@@ -32,7 +32,7 @@
         // connect to the server
         const socket = io.connect('http://' + document.domain + ':' + location.port);
         // initialize the client's user object to store information
-        let user;
+        let user = new User(1, 1);
         // variable to hold the username
         let myName = '';
         // array of other users' sha256 hahses of their user names to ensure non-repetition
@@ -66,6 +66,7 @@
         });
         // when the server send back the init message
         socket.on('init', json => {
+            console.log('init');
             // use the public keys to initialize the User instance
             user = new User(json.p, json.q);
             console.log('x: ', user.x.value, 'a: ', user.a);
