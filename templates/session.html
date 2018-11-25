@@ -7,16 +7,19 @@
 
 <body>
     <br><br>
+    <h2 style="font-size:2em;"><b>Your Messages (click on a message to decode):</b></h2>
+    <div class="message_holder" style="height:400px; overflow-y:scroll;">
+            <h3 style='color: #ccc;font-size: 2.5em;'>No messages yet..</h3>
+            
+    </div>
+    <br>
     <form action="" method="POST">
         <input style="font-size:1.5em" type="text" class="username" placeholder="User Name" enctype="multipart/form-data" readonly />
         <input style="font-size:1.5em" type="text" class="message" placeholder="Messages" enctype="multipart/form-data" />
         <input type="submit" />
     </form>
-    <br>
-    <h2 style="font-size:2em;"><b>Your Messages (click on a message to decode):</b></h5>
-
-    <h3 style='color: #ccc;font-size: 2.5em;'>No messages yet..</h3>
-    <div class="message_holder"></div>
+    
+    
 
     <!-- jQuery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
@@ -125,12 +128,15 @@
             // decrypt the two sent values
             const uname = user.decrypt(json.user_name);
             const msg = user.decrypt(json.message);
-            // if it still says that there are no messages yet, take that away
-            $('h3').remove();
-            // show the message and the sender
-            $(`<div style="cursor:default;font-size:1.5em;"><b style="color: #000"> ${json.user_name} </b> ${json.message}</div>`).prependTo('div.message_holder').click(function() {
-                $(this).html(`<div style="cursor:default;font-size:1.5em;"><b> ${uname} </b> ${msg}<div style="font-size:21px;">&emsp;&emsp;(<b>${json.user_name}</b> ${json.message})</div></div>`)
-            });
+            if (uname.length > 0) {
+                // if it still says that there are no messages yet, take that away
+                $('h3').remove();
+                // show the message and the sender
+                $(`<div style="cursor:default;font-size:1.5em;"><b style="color: #000"> ${json.user_name} </b> ${json.message}</div>`).appendTo('div.message_holder').click(function() {
+                    $(this).html(`<div style="cursor:default;font-size:1.5em;"><b> ${uname} </b> ${msg}</div>`)
+                });
+                $('div.message_holder').scrollTop($('div.message_holder')[0].scrollHeight);
+            }
         });
         // when another user connect and sends their encrypted username
         socket.on('join', json => {
@@ -143,8 +149,9 @@
                 // if the username was correctly decryptedz
                 if (uname.length > 0) {
                     // show that that user has connected where the messages usualy are
-                    $('div.message_holder').prepend('<div><b style="color: #000">' + uname +
+                    $('div.message_holder').append('<div style="color:#2eaf00;font-size:2em;"><b>' + uname +
                         ' connected</b></div>');
+                    $('div.message_holder').scrollTop($('div.message_holder')[0].scrollHeight);
                 }
                 // remember that that user is connected
                 usersStatus[uname] = true;
@@ -161,8 +168,9 @@
                 // if the username was correctly decrypted
                 if (uname.length >= 1) {
                     // show that that user has disconnected where the messages usually are
-                    $('div.message_holder').prepend('<div><b style="color: #000">' + uname +
+                    $('div.message_holder').append('<div style="color:#e21a00;font-size:2em;"><b>' + uname +
                         ' disconnected</b></div>');
+                    $('div.message_holder').scrollTop($('div.message_holder')[0].scrollHeight);
                 }
                 // take that user out of the users who are still connected
                 delete usersStatus[uname];

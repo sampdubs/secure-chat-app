@@ -43,7 +43,7 @@ def randPrime(min, n):
 users = {}
 # dict to keep track of public keys
 keys = {
-    'p': random.randint(100, 100000),
+    'p': random.randint(100, 50000),
     'q': randPrime(100, 1000000)
 }
 # dict to keep track of sids mapping to encrypted usernames

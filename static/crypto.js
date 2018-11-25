@@ -6,7 +6,7 @@ class User {
         this.p = bigInt(p);
         this.q = bigInt(q);
         // choose a random private x value
-        this.x = bigInt.randBetween(0, 100000);
+        this.x = bigInt.randBetween(0, 50000);
         // calculate the a value and store it as a regular number
         this.a = this.p.pow(this.x).mod(this.q).toJSNumber();
     }
