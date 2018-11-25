@@ -16,107 +16,152 @@
         <input type="submit" />
     </form>
 
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <!-- jQuery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Socket.IO -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
+    <!-- BigInteger.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/big-integer/1.6.36/BigInteger.min.js"></script>
+    <!-- aes.js from crypto-js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js"></script>
+    <!-- js-sha256 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/js-sha256/0.9.0/sha256.min.js"></script>
+    <!-- My User class file -->
     <script src="static/crypto.js"></script>
     <script>
+        // connect to the server
         const socket = io.connect('http://' + document.domain + ':' + location.port);
-        let user = new User(1, 1);
+        // initialize the client's user object to store information
+        let user;
+        // variable to hold the username
         let myName = '';
+        // array of other users' sha256 hahses of their user names to ensure non-repetition
         let hashList = [];
+        // for future use in checking if users are still connected
         const usersStatus = {};
         function getName() {
+            // until the client gives a non-empty unique name 
             while (!myName || hashList.includes(sha256(myName))) {
+                // ask them for their name and store the result
                 myName = prompt('What is your name?');
             }
+            // set the form username value to their valid name
             $('input.username').val(myName);
-            
         }
+        // when you connect to the server
         socket.on('connect', () => {
+            // tell the server that you have joined
             socket.emit('new user', {});
         });
+        // when the server send back the hash message
         socket.on('hash', json => {
+            // set the hash list to all of the other users' hashes
             hashList = json.hashes;
+            // get the valid name
             getName();
+            // send the hash of the username back to the server
             socket.emit('my hash', {
                 myHash: sha256(myName)
             });
         });
+        // when the server send back the init message
         socket.on('init', json => {
+            // use the public keys to initialize the User instance
             user = new User(json.p, json.q);
             console.log('x: ', user.x.value, 'a: ', user.a);
+            // send out the user's a value to all other users
             socket.emit('swap', {
                 a: user.a,
                 p: user.p,
                 q: user.q,
             });
         });
+        // when a third, fourth, etc. user joins
         socket.on('use prev', json => {
+            // set user x value to previous key
             user.usePrev();
+            // set user's a value to newest user
             socket.emit('big swap', {
                 a: user.a,
                 new_id: json.id
             });
         });
+        // when you receive another user's a value
         socket.on('new o', json => {
+            // as long as you haven't already recieved this a from another user
             if (json.a != user.o) {
                 console.log('new o: ', json.a);
+                // calculate your key using that value
                 user.calcKey(json.a);
                 console.log('key: ', user.key, 'p, q:', user.p.value, user.q.value);
+                // tell the server that you are ready to go
                 socket.emit('join', {
                     user_name: user.encrypt(myName)
                 });
             }
         });
+        // when the user submits the form/wants to send a message
         $('form').on('submit', e => {
+            // don't do the default of the form
             e.preventDefault();
+            // get the values from the form
             let user_name = $('input.username').val();
             let user_input = $('input.message').val();
+            // send out encrypted message to everyone else
             socket.emit('msg', {
                 user_name: user.encrypt(user_name),
                 message: user.encrypt(user_input)
             });
+            // put the cursor back in the message box
             $('input.message').val('').focus();
         });
+        // when you receive a message encrypted from another user
         socket.on('new msg', json => {
-            if (typeof json.user_name !== 'undefined') {
-                console.log('incoming');
-                console.log(json);
-                const uname = user.decrypt(json.user_name);
-                const msg = user.decrypt(json.message);
-                $('h3').remove();
-                $('div.message_holder').append('<div><b style="color: #000">' + uname + '</b> ' + msg +
-                    '</div>');
-            }
+            console.log('incoming');
+            console.log(json);
+            // decrypt the two sent values
+            const uname = user.decrypt(json.user_name);
+            const msg = user.decrypt(json.message);
+            // if it still says that there are no messages yet, take that away
+            $('h3').remove();
+            // show the message and the sender
+            $('div.message_holder').append('<div><b style="color: #000">' + uname + '</b> ' + msg +
+                '</div>');
         });
+        // when another user connect and sends their encrypted username
         socket.on('join', json => {
-            if (typeof json.user_name !== 'undefined') {
-                const uname = user.decrypt(json.user_name);
-                if (!(uname in usersStatus)) {
-                    $('h3').remove();
-                    if (uname.length >= 1) {
-                        $('div.message_holder').append('<div><b style="color: #000">' + uname +
-                            ' connected</b></div>');
-                    }
-                    usersStatus[uname] = true;
+            // decrypt the sent user name
+            const uname = user.decrypt(json.user_name);
+            // if you haven't already seen that they joined
+            if (!(uname in usersStatus)) {
+                // if the no messages is still displayed, remove it
+                $('h3').remove();
+                // if the username was correctly decryptedz
+                if (uname.length > 0) {
+                    // show that that user has connected where the messages usualy are
+                    $('div.message_holder').append('<div><b style="color: #000">' + uname +
+                        ' connected</b></div>');
                 }
+                // remember that that user is connected
+                usersStatus[uname] = true;
             }
         });
+        // when another user disconnects
         socket.on('leave', json => {
-            if (typeof json.user_name !== 'undefined') {
-                const uname = user.decrypt(json.user_name);
-                if (uname in usersStatus) {
-                    $('h3').remove();
-                    if (uname.length >= 1) {
-                        $('div.message_holder').append('<div><b style="color: #000">' + uname +
-                            ' disconnected</b></div>');
-                    }
-                    delete usersStatus[uname];
+            // decrypt the username of the disconnector
+            const uname = user.decrypt(json.user_name);
+            // if the user was previously connected
+            if (uname in usersStatus) {
+                // if the no messages is still displayed, remove it
+                $('h3').remove();
+                // if the username was correctly decrypted
+                if (uname.length >= 1) {
+                    // show that that user has disconnected where the messages usually are
+                    $('div.message_holder').append('<div><b style="color: #000">' + uname +
+                        ' disconnected</b></div>');
                 }
+                // take that user out of the users who are still connected
+                delete usersStatus[uname];
             }
         });
     </script>
