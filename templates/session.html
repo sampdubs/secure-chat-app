@@ -43,7 +43,7 @@
         let user = new User(1, 1);
         // variable to hold the username
         let myName = '';
-        // array of other users' sha256 hahses of their user names to ensure non-repetition
+        // array of other users' sha256 hashes of their usernames to ensure non-repetition
         let hashList = [];
         // for future use in checking if users are still connected
         const usersStatus = {};
@@ -97,7 +97,7 @@
         });
         // when you receive another user's a value
         socket.on('new o', json => {
-            // as long as you haven't already recieved this a from another user
+            // as long as you haven't already received this a from another user
             if (json.a != user.o) {
                 console.log('new o: ', json.a);
                 // calculate your key using that value
@@ -144,15 +144,15 @@
         });
         // when another user connect and sends their encrypted username
         socket.on('join', json => {
-            // decrypt the sent user name
+            // decrypt the sent username
             const uname = user.decrypt(json.user_name);
             // if you haven't already seen that they joined
             if (!(uname in usersStatus)) {
                 // if the no messages is still displayed, remove it
                 $('h3').remove();
-                // if the username was correctly decryptedz
+                // if the username was correctly decrypted
                 if (uname.length > 0) {
-                    // show that that user has connected where the messages usualy are
+                    // show that that user has connected where the messages usually are
                     $('div.message_holder').append('<div style="color:#2eaf00;font-size:2em;"><b>' + uname +
                         ' connected</b></div>');
                     $('div.message_holder').scrollTop($('div.message_holder')[0].scrollHeight);

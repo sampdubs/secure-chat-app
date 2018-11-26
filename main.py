@@ -107,13 +107,13 @@ def big_swap(sid, json, methods=['GET', 'POST']):
 # once a user has arrived at the key
 @sio.on('join')
 def join(sid, json, methods=['GET', 'POST']):
-    # uptate that their sid maps to their user name (encrypted with the key they just arrived at)
+    # update that their sid maps to their username (encrypted with the key they just arrived at)
     user_names[sid] = json['user_name']
     # send out that they joined to everyone else
     sio.emit('join', json, skip_sid=sid)
     # be able to use timing variables
     global done, timing
-    # increase the count of how many users have finnished the process
+    # increase the count of how many users have finished the process
     done += 1
     # if all users are finished
     if done == timing:
@@ -135,9 +135,9 @@ def msg(sid, json, methods=['GET', 'POST']):
 @sio.on('disconnect')
 def disconnect(sid):
     print('someone disconnected: ' + sid)
-    # if you have that sid's user name in memory (should always be True)
+    # if you have that sid's username in memory (should always be True)
     if sid in user_names:
-        # take that sid's user name out of memory
+        # take that sid's username out of memory
         users.pop(sid)
         # tell all other users that that user has left
         sio.emit('leave', {'user_name': user_names[sid]})

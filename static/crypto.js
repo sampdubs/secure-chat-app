@@ -1,4 +1,4 @@
-// User class for holding numberical information about the client
+// User class for holding numerical information about the client
 class User {
     // when a user is initialized
     constructor(p, q) {
