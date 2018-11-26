@@ -18,7 +18,7 @@
         <input type="submit" />
     </form>
     <br>
-    <div class="info_holder">
+    <div class="info_holder" style="font-size:1.5em;">
 
     </div>
     
@@ -107,7 +107,7 @@
                 socket.emit('join', {
                     user_name: user.encrypt(myName)
                 });
-                $('div.info_holder').html(`Public keys: ${user.p}, ${user.q}<br>Private key: ${user.x}<br>Symmetric shared key: ${user.key}`)
+                $('div.info_holder').html(`Public 🔑s: ${user.p}, ${user.q}<br>Private 🔑: ${user.x}<br>Symmetric shared 🔑: ${user.key}`)
             }
         });
         // when the user submits the form/wants to send a message
