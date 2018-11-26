@@ -9,8 +9,7 @@
     <br><br>
     <h2 style="font-size:2em;"><b>Your Messages (click on a message to decode):</b></h2>
     <div class="message_holder" style="height:400px; overflow-y:scroll;">
-            <h3 style='color: #ccc;font-size: 2.5em;'>No messages yet..</h3>
-            
+        <h3 style='color: #ccc;font-size: 2.5em;'>No messages yet..</h3>
     </div>
     <br>
     <form action="" method="POST">
@@ -18,6 +17,10 @@
         <input style="font-size:1.5em" type="text" class="message" placeholder="Messages" enctype="multipart/form-data" />
         <input type="submit" />
     </form>
+    <br>
+    <div class="info_holder">
+
+    </div>
     
     
 
@@ -104,6 +107,7 @@
                 socket.emit('join', {
                     user_name: user.encrypt(myName)
                 });
+                $('div.info_holder').html(`Public keys: ${user.p}, ${user.q}<br>Private key: ${user.x}<br>Symmetric shared key: ${user.key}`)
             }
         });
         // when the user submits the form/wants to send a message
