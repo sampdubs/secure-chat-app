@@ -122,7 +122,7 @@ def join(sid, json, methods=['GET', 'POST']):
         # reset variables
         done = 0
         timing = 0
-        print(f'Times: {time_avgs}, Measurements: {number_of_measurements[2]}')
+        print(f'Times: {time_avgs}')
 
 # facilitates sending out encrypted messages from one user to all users
 @sio.on('msg')
