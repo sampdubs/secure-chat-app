@@ -24,18 +24,46 @@
     
     
 
-    <!-- jQuery -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <!-- Socket.IO -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
-    <!-- BigInteger.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/big-integer/1.6.36/BigInteger.min.js"></script>
-    <!-- aes.js from crypto-js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/aes.js"></script>
-    <!-- js-sha256 -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-sha256/0.9.0/sha256.min.js"></script>
-    <!-- My User class file -->
+    <!-- jQuery for handling form submission -->
+    <script src="static/jquery.min.js"></script>
+    <!-- Socket.IO for communication with the server -->
+    <script src="static/socket.io.min.js"></script>
+    <!-- BigInteger.js for storing numbers that JavaScript can't hold precisely -->
+    <script src="static/BigInteger.min.js"></script>
+    <!-- aes.js from crypto-js for encrypting plaintext with the symmetric key -->
+    <script src="static/aes.js"></script>
+    <!-- js-sha256 for computing sha256 hashes of usernames, ensuring no repeat names -->
+    <script src="static/sha256.min.js"></script>
+    <!-- My User class file to handle all key computations, encryption, and decryption -->
     <script src="static/crypto.js"></script>
+
+    <!-- 
+    Bibliography/works cited:
+        Alla, Samhita. (26 May 2018) Building Your First Chat Application Using Flask in 7 Minutes.
+            Codeburst, codeburst.io/building-your-first-chat-application-using-flask-in-7-minutes-f98de4adfa5d.
+
+        Buchanan, Bill. (n.d.). Diffie–Hellman Example. Retrieved November 8, 2018 from
+            buchananweb.co.uk/security02.aspx.
+                
+        Diffie, Whitfield; Hellman, Martin E. (November 1976). IEEE Transactions on Information
+            Theory. New Directions in Cryptography. Retrieved November 6, 2018, from
+            https://ee.stanford.edu/~hellman/publications/24.pdf
+
+        emn178. js-sha256 (0.9.0) [JavaScript]. https://github.com/emn178/js-sha256
+
+        Evan Vosberg. crypto-js (3.1.2) [JavaScript]. https://github.com/brix/crypto-js
+
+        Guillermo Rauch. Socket.IO (1.7.3) [JavaScript]. https://socket.io/
+
+        Stretch, Jeremy. (23 Nov. 2010, 4:16 UTC). Symmetric Encryption, Asymmetric Encryption, and
+            Hashing. Retrieved November 6, 2018, from
+            packetlife.net/blog/2010/nov/23/symmetric-asymmetric-encryption-hashing/.
+
+        John Resig. JQuery (1.12.4) [JavaScript]. https://jquery.com/
+
+        Peter Olson. BigInteger.js (1.6.36) [JavaScript]. https://github.com/peterolson/BigInteger.js
+    -->
+
     <script>
         // connect to the server
         const socket = io.connect('http://' + document.domain + ':' + location.port);
